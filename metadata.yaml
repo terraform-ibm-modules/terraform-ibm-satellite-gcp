@@ -1,0 +1,718 @@
+id: "terraform-ibm-modules/satellite-gcp/ibm/1.0.0"
+name: "satellite-gcp"
+namespace: "terraform-ibm-modules"
+version: "1.0.0"
+providers: ["ibm", "gcp"]
+provider_logo_url: "/images/providers/satellite.png"
+description: "Terraform modules to set up satellite location on IBM cloud with gcp host"
+source: "https://github.com/terraform-ibm-modules/terraform-ibm-satellite-gcp"
+owner: "anilkumar@in.ibm.com"
+published_at: "2022-01-21T10:34:28.911362Z"
+registry: "https://registry.terraform.io/modules/terraform-ibm-modules/satellite-gcp/latest"
+alias: "satellite"
+tags: ["google", "google-beta", "gcp", "terraform", "satellite", "ibm-cloud", "host"]
+###################################
+# Root module
+###################################
+root:
+  - path: "github.com/terraform-ibm-modules/terraform-ibm-satellite-gcp"
+    name: "satellite-gcp"
+    provider_dependencies:
+      - name: "ibm"
+        namespace: "IBM-Cloud"
+        source: "IBM-Cloud/ibm"
+        version: ""
+      - name: "google"
+        namespace: "hashicorp"
+        source: "hashicorp/google"
+        version: ""
+      - name: "google-beta"
+        namespace: "hashicorp"
+        source: "hashicorp/google"
+        version: ""
+###################################
+# input variables
+###################################
+    inputs:
+      - name: "ibmcloud_api_key"
+        type: string
+        is_required: true
+        description: "IBM Cloud API Key"
+        is_sensitive: true
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "ibm_resource_group"
+        type: string
+        is_required: false
+        default_value: "default"
+        description: "Name of the resource group on which location has to be created"
+        example: "default"
+        is_sensitive: false
+        is_nullable: false
+        is_force_new: true
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "gcp_project"
+        type: string
+        is_required: true
+        description: "GCP Project ID"
+        example: "satellite-leads"
+        is_sensitive: false
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "gcp_region"
+        type: string
+        is_required: false
+        description: "Google Region"
+        default_value: "us-east1"
+        is_sensitive: false
+        example: "us-east1"
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "gcp_credentials"
+        type: string
+        is_required: true
+        description: "Either the path to or the contents of a service account key file in JSON format"
+        is_sensitive: true
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "gcp_resource_prefix"
+        type: string
+        is_required: false
+        default_value: "satellite-gcp"
+        description: "Name to be used on all gcp resource as prefix"
+        example: "satellite-gcp"
+        is_sensitive: false
+        related_to: ["module.gcp_vpc", "module.gcp_subnets", "module.gcp_control_plane_host_template",
+                    "module.gcp_cluster_host_template", "module.gcp_control_plane_hosts" "module.gcp_cluster_hosts"]
+        is_nullable: false
+        is_force_new: true
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "location"
+        type: string
+        is_required: true
+        default_value: "satellite-gcp"
+        description: "location name must begin and end with a letter and contain only letters, numbers, and - characters"
+        example: "satellite-gcp"
+        is_sensitive: false
+        related_to: ["satellite-location"]
+        is_nullable: false
+        is_force_new: false
+        regex: "^([a-z]|[a-z][-a-z0-9]*[a-z0-9])$"
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "is_location_exist"
+        type: bool
+        is_required: false
+        default_value: false
+        description: "Determines if the location has to be created or not"
+        example: false
+        is_sensitive: false
+        related_to: ["satellite-location"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: true
+        is_count_controller: true
+      - name: "managed_from"
+        type: string
+        is_required: true
+        default_value: "wdc"
+        description: "The IBM Cloud region to manage your Satellite location from. Choose a region close to your on-prem data center for better performance"
+        example: "wdc"
+        is_sensitive: false
+        related_to: ["satellite-location"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "location_zones"
+        type: list(string)
+        is_required: false
+        default_value: []
+        description: "Allocate your hosts across these three zones"
+        example: ["us-east1-b", "us-east1-c", "us-east1-d"]
+        is_sensitive: false
+        related_to: ["satellite-location"]
+        is_nullable: true
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "location_bucket"
+        type: string
+        is_required: false
+        description: "COS bucket name"
+        is_sensitive: false
+        related_to: ["satellite-location"]
+        is_nullable: true
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "host_labels"
+        type : list(string)
+        is_required: false
+        default_value: ["env:prod"]
+        description: "Labels to add to attach host script"
+        example: ["env:prod"]
+        is_sensitive: false
+        related_to: ["satellite-location"]
+        is_nullable: true
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+  ##################################################
+  # gcp Host Variables
+  ##################################################
+      - name: "satellite_host_count"
+        type: number
+        is_required: false
+        default_value: 3
+        description: "The total number of ibm host to create for control plane"
+        example: 3
+        is_sensitive: false
+        related_to: ["satellite-assign-host"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: true
+        is_count_controller: false
+      - name: "addl_host_count"
+        type: number
+        is_required: false
+        default_value: 3
+        description: "The total number of additional gcp host"
+        example: 3
+        is_sensitive: false
+        related_to: ["satellite-cluster"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: true
+        is_count_controller: false
+      - name: "ssh_public_key"
+        type: string
+        is_required: false
+        description: "SSH Public Key. Get your ssh key by running `ssh-key-gen` command"
+        is_sensitive: false
+        related_to: ["tls_private_key.rsa_key", "module.gcp_control_plane_host_template", "module.gcp_cluster_host_template"]
+        is_nullable: true
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "gcp_ssh_user"
+        type: string
+        is_required: false
+        description: "SSH User of above provided ssh_public_key"
+        is_sensitive: false
+        related_to: ["tls_private_key.rsa_key", "module.gcp_control_plane_host_template", "module.gcp_cluster_host_template"]
+        is_nullable: true
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+       - name: "gcp_security_custom_rules"
+        type: ist(object({
+        name                    = string
+        description             = string
+        direction               = string
+        priority                = number
+        ranges                  = list(string)
+        source_tags             = list(string)
+        source_service_accounts = list(string)
+        target_tags             = list(string)
+        target_service_accounts = list(string)
+        allow = list(object({
+          protocol = string
+          ports    = list(string)
+        }))
+        deny = list(object({
+          protocol = string
+          ports    = list(string)
+        }))
+        log_config = object({
+        metadata = string
+        })
+        }))
+        is_required: false
+        default_value: [
+        {
+          name                    = "satellite-google-ingress"
+          description             = "Ingress for satellite-google-vpc"
+          direction               = "INGRESS"
+          priority                = 1000
+          ranges                  = ["0.0.0.0/0"]
+          source_tags             = null
+          source_service_accounts = null
+          target_tags             = []
+          target_service_accounts = null
+          allow = [
+          {
+            protocol = "tcp"
+            ports    = ["30000-32767"]
+          },
+          {
+            protocol = "udp"
+            ports    = ["30000-32767"]
+          }
+        ]
+        deny       = []
+        log_config = null
+        }]
+        description: "gcp security group custom rules"
+        is_sensitive: false
+        related_to: ["module.gcp_firewall_rules"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "control_plane_instance_type"
+        type: string
+        is_required: false
+        default_value: "n2-standard-4"
+        description: "The type of gcp instance to start for control plane."
+        example: "n2-standard-4"
+        is_sensitive: false
+        related_to: ["module.gcp_control_plane_host_template"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "cluster_instance_type"
+        type: string
+        is_required: false
+        default_value: "n2-standard-4"
+        description: "The type of gcp instance to start for cluster."
+        example: "n2-standard-4"
+        is_sensitive: false
+        related_to: ["module.gcp_cluster_host_template"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "control_plane_vm_source_image_project"
+        type: string
+        is_required: false
+        default_value: "rhel-cloud"
+        description: "Project where the source image comes from for control plane host"
+        example: "rhel-cloud"
+        is_sensitive: false
+        related_to: ["module.gcp_control_plane_host_template"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "cluster_vm_source_image_project"
+        type: string
+        is_required: false
+        default_value: "rhel-cloud"
+        description: "Project where the source image comes from for cluster host"
+        example: "rhel-cloud"
+        is_sensitive: false
+        related_to: ["module.gcp_cluster_host_template"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "control_plane_vm_source_image_family"
+        type: string
+        is_required: false
+        default_value: "rhel-7"
+        description: "Source disk image for control plane host"
+        example: "rhel-7"
+        is_sensitive: false
+        related_to: ["module.gcp_control_plane_host_template"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "cluster_vm_source_image_family"
+        type: string
+        is_required: false
+        default_value: "rhel-7"
+        description: "Source disk image for cluster host"
+        example: "rhel-7"
+        is_sensitive: false
+        related_to: ["module.gcp_cluster_host_template"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "control_plane_vm_disk_size_gb"
+        type: number
+        is_required: false
+        default_value: 100
+        description: "Boot disk size in GB for control plane host"
+        example: "rhel-7"
+        is_sensitive: false
+        related_to: ["module.gcp_control_plane_host_template"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "cluster_vm_disk_size_gb"
+        type: number
+        is_required: false
+        default_value: 100
+        description: "Boot disk size in GB for cluster host"
+        example: "rhel-7"
+        is_sensitive: false
+        related_to: ["module.gcp_cluster_host_template"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "control_plane_vm_access_config"
+        type: list(object({
+          nat_ip       = string
+          network_tier = string
+        }))
+        is_required: false
+        default_value: [{
+            nat_ip       = null
+            network_tier = "PREMIUM"
+        }]
+        description: "Access configurations, i.e. IPs via which the VM instance can be accessed via the Internet."
+        example: [{
+            nat_ip       = null
+            network_tier = "PREMIUM"
+        }]
+        is_sensitive: false
+        related_to: ["module.gcp_control_plane_host_template"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "cluster_vm_access_config"
+        type: list(object({
+          nat_ip       = string
+          network_tier = string
+        }))
+        is_required: false
+        default_value: [{
+            nat_ip       = null
+            network_tier = "PREMIUM"
+        }]
+        description: "Access configurations, i.e. IPs via which the VM instance can be accessed via the Internet."
+        example: [{
+            nat_ip       = null
+            network_tier = "PREMIUM"
+        }]
+        is_sensitive: false
+        related_to: ["module.gcp_cluster_host_template"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+  ##################################################
+  # satellite-cluster variables
+  ##################################################
+      - name: "create_cluster"
+        type: bool
+        is_required: false
+        default_value: true
+        description: "Create Cluster"
+        example: true
+        is_sensitive: false
+        related_to: ["module.satellite-cluster"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: true
+        is_count_controller: true
+      - name: "cluster"
+        type: string
+        is_required: false
+        default_value: "satellite-ibm-cluster"
+        description: "Create Cluster"
+        example: "satellite-ibm-cluster"
+        is_sensitive: false
+        related_to: ["module.satellite-cluster"]
+        is_nullable: true
+        is_force_new: false
+        regex: "^([a-z]|[a-z][-a-z0-9]*[a-z0-9])$"
+        is_provision_controller: true
+        is_count_controller: false
+      - name: "kube_version"
+        type: string
+        is_required: false
+        default_value: "4.7_openshift"
+        description: "Kube Version"
+        example: "4.7_openshift"
+        is_sensitive: false
+        related_to: ["module.satellite-cluster"]
+        is_nullable: true
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "cluster_host_labels"
+        type: list(string)
+        is_required: false
+        default_value: ["env:prod"]
+        description: "Labels to add to attach host script"
+        example: ["env:prod"]
+        is_sensitive: false
+        related_to: ["module.satellite-cluster"]
+        is_nullable: true
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "worker_count"
+        type: number
+        is_required: false
+        default_value: 1
+        description: "Worker Count for default pool"
+        example: 1
+        is_sensitive: false
+        related_to: ["module.satellite-cluster"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "wait_for_worker_update"
+        type: bool
+        is_required: false
+        default_value: true
+        description: "Wait for worker update"
+        example: true
+        is_sensitive: false
+        related_to: ["module.satellite-cluster"]
+        is_nullable: false
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "default_worker_pool_labels"
+        type: map(any)
+        is_required: false
+        description: "Label to add default worker pool"
+        is_sensitive: false
+        related_to: ["module.satellite-cluster"]
+        is_nullable: true
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "tags"
+        type: list(string)
+        is_required: false
+        description: "List of tags associated with cluster"
+        is_sensitive: false
+        related_to: ["module.satellite-cluster"]
+        is_nullable: true
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "create_timeout"
+        type : string
+        is_required: false
+        description: "Timeout duration for create."
+        example: "10m"
+        is_sensitive: false
+        related_to: ["module.satellite-cluster","module.satellite-cluster-worker-pool"]
+        is_nullable: true
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "update_timeout"
+        type : string
+        is_required: false
+        description: "Timeout duration for update."
+        example: "10m"
+        is_sensitive: false
+        related_to: ["satellite-cluster"]
+        is_nullable: true
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "delete_timeout"
+        type : string
+        is_required: false
+        description: "Timeout duration for delete."
+        example: "10m"
+        is_sensitive: false
+        related_to: ["module.satellite-cluster","module.satellite-cluster-worker-pool"]
+        is_nullable: true
+        is_force_new: false
+        is_provision_controller: false
+        is_count_controller: false
+  ##################################################
+  # satellite-cluster-worker-pool variables
+  ##################################################
+      - name: "create_cluster_worker_pool"
+        type: bool
+        is_required: false
+        default_value: false
+        description: "Create Cluster worker pool"
+        example: false
+        is_sensitive: false
+        related_to: ["module.satellite-cluster-worker-pool"]
+        is_nullable: true
+        is_force_new: false
+        is_provision_controller: true
+        is_count_controller: true
+      - name: "worker_pool_name"
+        type: string
+        is_required: false
+        default_value: "module.satellite-worker-pool"
+        description: "Workerpool name"
+        example: "satellite-worker-pool"
+        is_sensitive: false
+        related_to: ["satellite-cluster-worker-pool"]
+        is_nullable: true
+        is_force_new: false
+        regex: "^([a-z]|[a-z][-a-z0-9]*[a-z0-9])$"
+        is_provision_controller: false
+        is_count_controller: false
+      - name: "worker_pool_host_labels"
+        type: list(string)
+        is_required: false
+        default_value: ["env:prod"]
+        description: "Labels to add to attach host script"
+        example: ["env:prod"]
+        is_sensitive: false
+        related_to: ["module.satellite-cluster-worker-pool"]
+        is_nullable: true
+        is_force_new: false
+        regex: "^[a-zA-Z0-9:]+$"
+        is_provision_controller: false
+        is_count_controller: false
+###################################
+# output variables
+###################################
+    outputs:
+      - name: "location_id"
+        type : string
+        description : "location ID"
+        is_sensitive: false
+        related_to: ["module.satellite-location"]
+      - name: "gcp_cp_host_names"
+        type : string
+        description : "Satellite host script content"
+        is_sensitive: false
+        related_to: ["module.satellite-location"]
+      - name: "network"
+        type : string
+        description : "Network information"
+        is_sensitive: false
+        related_to: ["module.gcp_vpc"]
+      - name: "network_name"
+        type : string
+        description : "Network name"
+        is_sensitive: false
+        related_to: ["module.gcp_vpc"]
+      - name: "firewall_rules"
+        type : string
+        description : "Firewall rules"
+        is_sensitive: false
+        related_to: ["module.gcp_firewall_rules"]
+      - name: "control_plane_instances_details"
+        type : list
+        description : "Control plane instance details"
+        is_sensitive: false
+        related_to: ["module.gcp_control_plane_hosts"]
+      - name: "cluster_instances_details"
+        type : list
+        description : "Cluster instance details"
+        is_sensitive: false
+        related_to: ["module.gcp_cluster_hosts"]
+      - name: "cluster_id"
+        type : string
+        description : "Cluster ID"
+        is_sensitive: false
+        related_to: ["module.satellite-cluster"]
+      - name: "cluster_crn"
+        type : string
+        description : "Cluster CRN"
+        is_sensitive: false
+        related_to: ["satellite-cluster"]
+      - name: "server_url"
+        type : string
+        description : "Cluster master server URL"
+        is_sensitive: false
+        related_to: ["module.satellite-cluster"]
+      - name: "cluster_state"
+        type : string
+        description : "Cluster state"
+        is_sensitive: false
+        related_to: ["module.satellite-cluster"]
+      - name: "cluster_status"
+        type : string
+        description : "Cluster status"
+        is_sensitive: false
+        related_to: ["module.satellite-cluster"]
+      - name: "ingress_hostname"
+        type : string
+        description : "Cluster ingress hostname"
+        is_sensitive: false
+        related_to: ["module.satellite-cluster"]
+      - name: "cluster_worker_pool_id"
+        type : string
+        description : "Cluster workerpool ID"
+        is_sensitive: false
+        related_to: ["module.satellite-cluster-worker-pool"]
+      - name: "worker_pool_zones"
+        type : list(string)
+        description : "Cluster workerpool zones"
+        is_sensitive: false
+        related_to: ["module.satellite-cluster-worker-pool"]
+      - name: "worker_pool_worker_count"
+        type : number
+        description : "Cluster worker count per zone"
+        is_sensitive: false
+        related_to: ["satellite-cluster-worker-pool"]
+##########################################################
+# local_variables
+##########################################################
+    locals:
+      - name: "control_plane_hosts"
+        type : list(string)
+        example: ["satellite-google-vm-1", "satellite-google-vm-2", "satellite-google-vm-3"]
+        description : "Control plane hosts"
+        is_hardcoded : true
+        related_to: ["module.gcp_control_plane_hosts"]
+###################################
+# List of modules
+###################################
+    modules:
+      - name: "satellite-location"
+        id: "terraform-ibm-modules/satellite/ibm/1.8.0/modules/location"
+        source: "https://github.com/terraform-ibm-modules/terraform-ibm-satellite/tree/main/modules/location"
+        description: "Used to provision satellite location"
+      - name: "gcp_vpc"
+        id: "terraform-google-modules/network/google/4.1.0"
+        source: "https://github.com/terraform-google-modules/terraform-google-network/tree/master/modules/vpc"
+        description: "Provision VPC"
+      - name: "gcp_firewall_rules"
+        id: "terraform-google-modules/network/google/4.1.0"
+        source: "https://github.com/terraform-google-modules/terraform-google-network/tree/master/modules/firewall-rules"
+        description: "Provision gcp firewall"
+      - name: "gcp_control_plane_host_template"
+        id: "terraform-google-modules/vm/google/google/4.1.0/modules/instance_template"
+        source: "https://github.com/terraform-google-modules/terraform-google-vm/tree/v7.4.0/modules/instance_template"
+        description: "Provision gcp control plane host tenplate"
+      - name: "gcp_cluster_host_template"
+        id: "terraform-google-modules/vm/google/google/4.1.0/modules/instance_template"
+        source: "https://github.com/terraform-google-modules/terraform-google-vm/tree/v7.4.0/modules/instance_template"
+        description: "Provision gcp cluster host template"
+      - name: "gcp_control_plane_hosts"
+        id: "terraform-google-modules/vm/google/google/4.1.0/modules/compute_instance"
+        source: "https://github.com/terraform-google-modules/terraform-google-vm/tree/v7.4.0/modules/compute_instance"
+        description: "Provision gcp control plane host"
+      - name: "gcp_cluster_hosts"
+        id: "terraform-google-modules/vm/google/google/4.1.0/modules/compute_instance"
+        source: "https://github.com/terraform-google-modules/terraform-google-vm/tree/v7.4.0/modules/compute_instance"
+        description: "Provision gcp cluster host"
+      - name: "satellite-assign-host"
+        id: "terraform-ibm-modules/satellite/ibm/1.8.0/modules/host"
+        source: "https://github.com/terraform-ibm-modules/terraform-ibm-satellite/tree/main/modules/host"
+        description: "Used to assign host to control plane cluster"
+      - name: "satellite-cluster"
+        id: "terraform-ibm-modules/satellite/ibm/1.8.0/modules/cluster"
+        source: "https://github.com/terraform-ibm-modules/terraform-ibm-satellite/tree/main/modules/cluster"
+        description: "Used to provision ROKS satellite cluster"
+      - name: "satellite-cluster-worker-pool"
+        id: "terraform-ibm-modules/satellite/ibm/1.8.0/modules/configure-cluster-worker-pool"
+        source: "https://github.com/terraform-ibm-modules/terraform-ibm-satellite/tree/main/modules/configure-cluster-worker-pool"
+        description: "Use to configure worker pool on existing ROKS satellite cluster"

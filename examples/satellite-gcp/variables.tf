@@ -12,6 +12,11 @@ variable "TF_VERSION" {
   default     = "0.13"
 }
 
+variable "ibmcloud_api_key" {
+  description = "IBM Cloud API Key"
+  type        = string
+}
+
 variable "ibm_resource_group" {
   description = "Resource group name of the IBM Cloud account."
   type        = string
@@ -26,6 +31,11 @@ variable "gcp_region" {
   description = "Google Region"
   type        = string
   default     = "us-east1"
+}
+
+variable "gcp_credentials" {
+  description = "Either the path to or the contents of a service account key file in JSON format"
+  type        = string
 }
 
 ###################################################
@@ -92,7 +102,7 @@ variable "gcp_resource_prefix" {
 }
 
 variable "gcp_security_custom_rules" {
-  description = "GCP security group custom rules"
+  description = "Azure security group custom rules"
   type = list(object({
     name                    = string
     description             = string
@@ -198,89 +208,21 @@ variable "addl_host_count" {
 }
 
 variable "control_plane_instance_type" {
-  description = "The type of gcp instance to start for control plane."
+  description = "The type of gcp instance to start."
   type        = string
   default     = "n2-standard-4"
 }
 
 variable "cluster_instance_type" {
-  description = "The type of gcp instance to start for cluster."
+  description = "The type of gcp instance to start."
   type        = string
   default     = "n2-standard-4"
 }
 
-variable "control_plane_vm_source_image_project" {
-  description = "Project where the source image comes from for control plane host"
-  type        = string
-  default     = "rhel-cloud"
-}
-
-variable "control_plane_vm_source_image_family" {
-  description = "Source disk image for control plane host"
-  type        = string
-  default     = "rhel-7"
-}
-
-variable "control_plane_vm_disk_size_gb" {
-  description = "Boot disk size in GB for control plane host"
-  type        = number
-  default     = 100
-}
-
-variable "control_plane_vm_disk_type" {
-  description = "Boot disk type, can be either pd-ssd, local-ssd, or pd-standard for control plane host"
-  type        = string
-  default     = "pd-ssd"
-}
-
-variable "cluster_vm_source_image_project" {
-  description = "Project where the source image comes from for cluster host"
-  type        = string
-  default     = "rhel-cloud"
-}
-
-variable "cluster_vm_source_image_family" {
-  description = "Source disk image for cluster host"
-  type        = string
-  default     = "rhel-7"
-}
-
-variable "cluster_vm_disk_size_gb" {
+variable "cluster_disk_size_gb" {
   description = "Boot disk size in GB for cluster host"
   type        = number
   default     = 100
-}
-
-variable "cluster_vm_disk_type" {
-  description = "Boot disk type, can be either pd-ssd, local-ssd, or pd-standard for cluster host"
-  type        = string
-  default     = "pd-ssd"
-}
-
-variable "control_plane_vm_access_config" {
-  description = "Access configurations, i.e. IPs via which the VM instance can be accessed via the Internet."
-  type = list(object({
-    nat_ip       = string
-    network_tier = string
-  }))
-
-  default = [{
-    nat_ip       = null
-    network_tier = "PREMIUM"
-  }]
-}
-
-variable "cluster_vm_access_config" {
-  description = "Access configurations, i.e. IPs via which the VM instance can be accessed via the Internet."
-  type = list(object({
-    nat_ip       = string
-    network_tier = string
-  }))
-
-  default = [{
-    nat_ip       = null
-    network_tier = "PREMIUM"
-  }]
 }
 
 variable "ssh_public_key" {
@@ -299,7 +241,7 @@ variable "gcp_ssh_user" {
 # IBMCLOUD ROKS Cluster Variables
 ##################################################
 
-variable "create_cluster" {
+variable "is_create_cluster" {
   description = "Create Cluster"
   type        = bool
   default     = true
