@@ -6,6 +6,9 @@ jobs:
   terraform_validate:
     runs-on: ubuntu-latest
     steps:
+      - name: Fix up git URLs
+        run: echo -e '[url "https://github.com/"]\n  insteadOf = "git://github.com/"' >> ~/.gitconfig
+
       - name: prepare
         # tfswitch command line tool lets you switch between different versions of terraform.
         # If you do not have a particular version of terraform installed, tfswitch will download the version you desire.
@@ -21,7 +24,7 @@ jobs:
         name: setup terraform
         uses: hashicorp/setup-terraform@v1  # sets up Terraform CLI in your GitHub Actions workflow
         with:
-          terraform_version: 0.13.0
+          terraform_version: 0.13.1
       -
         name: Install pre-commit
         run: pip install pre-commit
