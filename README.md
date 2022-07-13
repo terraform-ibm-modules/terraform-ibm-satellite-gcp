@@ -91,7 +91,8 @@ provider "ibm" {
 }
 
 module "satellite-gcp" {
-  source = "git::git@github.com:terraform-ibm-modules/terraform-ibm-satellite-gcp.git"
+  source  = "terraform-ibm-modules/satellite-gcp/ibm"
+  version = "1.0.0"
 
   ################# IBM cloud & GCP cloud authentication variables #######################
   ibm_resource_group = var.ibm_resource_group

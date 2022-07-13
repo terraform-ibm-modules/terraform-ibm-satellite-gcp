@@ -41,7 +41,8 @@ terraform destroy
 
 ``` hcl
 module "satellite-gcp" {
-  source = "git::git@github.com:terraform-ibm-modules/terraform-ibm-satellite-gcp.git"
+  source  = "terraform-ibm-modules/satellite-gcp/ibm"
+  version = "1.0.0"
 
   ################# IBM cloud & GCP cloud authentication variables #######################
   ibmcloud_api_key   = var.ibmcloud_api_key       #pragma: allowlist secret

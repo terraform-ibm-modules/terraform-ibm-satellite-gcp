@@ -8,9 +8,11 @@ terraform {
   required_providers {
     google = {
       source = "hashicorp/google"
+      version = "3.90.1"
     }
     ibm = {
       source = "ibm-cloud/ibm"
+      version = "~> 1.43.0"
     }
   }
 }
