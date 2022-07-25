@@ -4,7 +4,8 @@
 #####################################################
 
 module "satellite-location" {
-  source = "terraform-ibm-modules/satellite/ibm//modules/location"
+  source  = "terraform-ibm-modules/satellite/ibm//modules/location"
+  version = "1.1.9"
 
   is_location_exist = var.is_location_exist
   location          = var.location
@@ -137,6 +138,7 @@ module "gcp_cluster_host_template" {
 
 module "gcp_control_plane_hosts" {
   source             = "terraform-google-modules/vm/google//modules/compute_instance"
+  version            = "~> 7.8.0"
   region             = var.gcp_region
   network            = module.gcp_vpc.network_name
   subnetwork_project = var.gcp_project
@@ -153,6 +155,7 @@ module "gcp_control_plane_hosts" {
 
 module "gcp_cluster_hosts" {
   source             = "terraform-google-modules/vm/google//modules/compute_instance"
+  version            = "~> 7.8.0"
   region             = var.gcp_region
   network            = module.gcp_vpc.network_name
   subnetwork_project = var.gcp_project
@@ -171,7 +174,8 @@ module "gcp_cluster_hosts" {
 # Assign host to satellite location control plane
 ###################################################################
 module "satellite-assign-host" {
-  source = "terraform-ibm-modules/satellite/ibm//modules/host"
+  source  = "terraform-ibm-modules/satellite/ibm//modules/host"
+  version = "1.1.9"
 
   host_count     = var.satellite_host_count
   location       = module.satellite-location.location_id
@@ -187,7 +191,8 @@ module "satellite-assign-host" {
 # Create satellite ROKS cluster
 ###################################################################
 module "satellite-cluster" {
-  source = "terraform-ibm-modules/satellite/ibm//modules/cluster"
+  source  = "terraform-ibm-modules/satellite/ibm//modules/cluster"
+  version = "1.1.9"
 
   create_cluster             = var.create_cluster
   cluster                    = var.cluster
@@ -210,7 +215,8 @@ module "satellite-cluster" {
 # Create worker pool on existing ROKS cluster
 ###################################################################
 module "satellite-cluster-worker-pool" {
-  source = "terraform-ibm-modules/satellite/ibm//modules/configure-cluster-worker-pool"
+  source  = "terraform-ibm-modules/satellite/ibm//modules/configure-cluster-worker-pool"
+  version = "1.1.9"
 
   create_cluster_worker_pool = var.create_cluster_worker_pool
   worker_pool_name           = var.worker_pool_name
